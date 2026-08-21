@@ -1,0 +1,37 @@
+menu "Benchmark Configuration"
+config ESP_WIFI_SSID
+    string "WiFi SSID"
+    default "Samoda Wifi"
+    help
+	SSID (network name) the DUT connects to.
+
+config ESP_WIFI_PASSWORD
+    string "WiFi Password"
+    default "ihmj9898"
+    help
+	WiFi password (WPA or WPA2) for ESP_WIFI_SSID.
+
+config ESP_MQTT_BROKER_URI
+    string "MQTT broker URI"
+    default "mqtt://10.95.43.98:1883"
+    help
+	URI of the MQTT broker Node-RED's mqtt-in node is subscribed against.
+	Must be your PC's LAN IP (not 127.0.0.1/localhost) since the ESP32 is
+	a separate device on the same Wi-Fi network. Find it with `ipconfig`
+	(look for the IPv4 address on the Wi-Fi adapter).
+
+config ESP_MQTT_TOPIC
+    string "MQTT publish topic"
+    default "esp32/benchmark"
+    help
+	Topic the DUT publishes trial results to. Must match the topic
+	subscribed to by the mqtt-in node in Node-RED.
+
+config ESP_MQTT_TOPIC_STATS
+    string "MQTT trial-start stats topic"
+    default "esp32/benchmark/stats"
+    help
+	Topic the DUT publishes trial-start events (i, j, payload_len) to,
+	sent before encryption runs. Must match the topic subscribed to by
+	the corresponding mqtt-in node in Node-RED.
+endmenu
