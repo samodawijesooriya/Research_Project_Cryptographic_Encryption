@@ -20,31 +20,43 @@ static void ensure_ina219_ready(void) {
 
 void start_monitor(monitor_ctx_t *ctx) {
     ensure_ina219_ready();
-    ctx->start_time_us      = esp_timer_get_time();
-    ctx->heap_before         = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-    ctx->current_before_mA   = ina219_read_current_mA();
-    ctx->power_before_mW     = ina219_read_power_mW();
+    ctx->start_time_us        = esp_timer_get_time();
+    ctx->heap_before           = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    ctx->heap_min_free_before  = heap_caps_get_minimum_free_size(MALLOC_CAP_8BIT);
+    ctx->stack_hwm_free_before = uxTaskGetStackHighWaterMark(NULL);
+    ctx->current_before_mA     = ina219_read_current_mA();
+    ctx->power_before_mW       = ina219_read_power_mW();
 }
 
 void stop_monitor(monitor_ctx_t *ctx) {
-    ctx->end_time_us        = esp_timer_get_time();
-    ctx->heap_after          = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-    ctx->current_after_mA    = ina219_read_current_mA();
-    ctx->power_after_mW      = ina219_read_power_mW();
+    ctx->end_time_us          = esp_timer_get_time();
+    ctx->heap_after            = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    ctx->heap_min_free_after   = heap_caps_get_minimum_free_size(MALLOC_CAP_8BIT);
+    ctx->stack_hwm_free_after  = uxTaskGetStackHighWaterMark(NULL);
+    ctx->current_after_mA      = ina219_read_current_mA();
+    ctx->power_after_mW        = ina219_read_power_mW();
 }
 
 void output_metrics(const monitor_ctx_t *ctx, const char *label) {
     int64_t elapsed_us     = ctx->end_time_us - ctx->start_time_us;
     int32_t heap_delta_b   = (int32_t)ctx->heap_before - (int32_t)ctx->heap_after;
+    // Peak (watermark) usage: how much further the lowest-ever free level
+    // dropped during this call. Clamped at 0 -- a same/larger watermark just
+    // means this call never dug deeper than some earlier point this boot.
+    int32_t heap_peak_b    = (int32_t)ctx->heap_min_free_before - (int32_t)ctx->heap_min_free_after;
+    if (heap_peak_b < 0) heap_peak_b = 0;
+    int32_t stack_peak_b   = (int32_t)ctx->stack_hwm_free_before - (int32_t)ctx->stack_hwm_free_after;
+    if (stack_peak_b < 0) stack_peak_b = 0;
     float   power_delta_mW = ctx->power_after_mW - ctx->power_before_mW;
 
     // This record feeds directly into the offline clean/CSV/analyze pipeline
     // (thesis Section 3.6/3.7) — no cross-device timestamp correlation needed,
     // since everything was measured on this one board.
-    printf("[%s] time_us=%lld  heap_delta_bytes=%ld  "
+    printf("[%s] time_us=%lld  heap_delta_bytes=%ld  heap_peak_used_bytes=%ld  "
+           "stack_peak_used_bytes=%ld  "
            "current_mA(before,after)=%.3f,%.3f  power_mW(before,after)=%.3f,%.3f  "
            "power_delta_mW=%.3f\n",
-           label, elapsed_us, heap_delta_b,
+           label, elapsed_us, heap_delta_b, heap_peak_b, stack_peak_b,
            ctx->current_before_mA, ctx->current_after_mA,
            ctx->power_before_mW, ctx->power_after_mW,
            power_delta_mW);

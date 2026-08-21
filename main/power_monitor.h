@@ -5,12 +5,27 @@
 #include <stdint.h>
 #include "esp_heap_caps.h"
 #include "esp_timer.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 typedef struct {
     int64_t  start_time_us;
     int64_t  end_time_us;
     uint32_t heap_before;
     uint32_t heap_after;
+    // Watermarks, not simple before/after snapshots: heap_min_free_* is the
+    // lowest free-heap level ever seen since boot (heap_caps_get_minimum_free_size),
+    // and stack_hwm_free_* is the least free stack ever seen on this task
+    // (uxTaskGetStackHighWaterMark, in BYTES on ESP-IDF/Xtensa -- unlike vanilla
+    // FreeRTOS this port's StackType_t is 1 byte, not a 4-byte word). Since each
+    // trial runs in its own boot session (deep sleep resets the chip -- see
+    // main.c), these watermarks reset every trial, so before/after deltas give
+    // the true peak heap/stack consumed by *this* encrypt call, including any
+    // transient allocations that were freed before stop_monitor() ran.
+    uint32_t heap_min_free_before;
+    uint32_t heap_min_free_after;
+    uint32_t stack_hwm_free_before;
+    uint32_t stack_hwm_free_after;
     float    current_before_mA;
     float    current_after_mA;
     float    power_before_mW;

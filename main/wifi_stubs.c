@@ -148,21 +148,27 @@ void report_to_nodered(const monitor_ctx_t *ctx, const char *label) {
 
     int64_t elapsed_us   = ctx->end_time_us - ctx->start_time_us;
     int32_t heap_delta_b = (int32_t)ctx->heap_before - (int32_t)ctx->heap_after;
+    int32_t heap_peak_b  = (int32_t)ctx->heap_min_free_before - (int32_t)ctx->heap_min_free_after;
+    if (heap_peak_b < 0) heap_peak_b = 0;
+    int32_t stack_peak_b = (int32_t)ctx->stack_hwm_free_before - (int32_t)ctx->stack_hwm_free_after;
+    if (stack_peak_b < 0) stack_peak_b = 0;
     float   power_delta  = ctx->power_after_mW - ctx->power_before_mW;
 
-    char payload[256];
+    char payload[320];
     int len = snprintf(payload, sizeof(payload),
         "{"
         "\"algo\":\"%s\","
         "\"time_us\":%lld,"
         "\"heap_delta_bytes\":%ld,"
+        "\"heap_peak_used_bytes\":%ld,"
+        "\"stack_peak_used_bytes\":%ld,"
         "\"current_before_mA\":%.3f,"
         "\"current_after_mA\":%.3f,"
         "\"power_before_mW\":%.3f,"
         "\"power_after_mW\":%.3f,"
         "\"power_delta_mW\":%.3f"
         "}",
-        label, elapsed_us, heap_delta_b,
+        label, elapsed_us, heap_delta_b, heap_peak_b, stack_peak_b,
         ctx->current_before_mA, ctx->current_after_mA,
         ctx->power_before_mW, ctx->power_after_mW,
         power_delta);
