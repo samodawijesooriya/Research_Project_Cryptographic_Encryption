@@ -74,3 +74,69 @@ network credentials; each collaborator generates their own via
 ## License
 
 Public Domain / CC0 — see [LICENSE](LICENSE).
+
+
+Design decisions
+Which payload sizes to test. Don't repeat all 100 sizes — pick 5–6 representative ones spanning your existing j range (e.g. smallest, ~25%, ~50%, ~75%, largest). Your existing dataset already tells you how time/memory scale with size; you just need power to fill in the same trend at a few points.
+
+Batch size N. Needs the whole loop to run comfortably longer than the INA219's ~1.06ms conversion cycle so the average is over many real conversions, not one stale register value. If ASCON is tens-of-µs and AES-GCM is low-hundreds-of-µs per call, N=2000–5000 gives a window of roughly 0.1–1s — plenty.
+
+Sampling interval K. Don't poll the INA219 every iteration inside the timing-critical loop — an I2C read at 400kHz takes tens-to-~100µs, which is comparable to or larger than the crypto op itself, so interleaving it would both slow down the loop and inject extra current draw right into the number you're trying to measure. Poll every K=20–50 iterations instead.
+
+Code additions (new, isolated — don't touch the existing functions)
+In power_monitor.h, add accumulator fields and a sampling function without changing the existing struct fields other trials rely on:
+
+
+// added for supplementary energy run — does not affect existing fields
+double   current_sum_mA;
+double   power_sum_mW;
+uint32_t sample_count;
+
+void sample_monitor(monitor_ctx_t *ctx) {
+    ctx->current_sum_mA += ina219_read_current_mA();
+    ctx->power_sum_mW   += ina219_read_power_mW();
+    ctx->sample_count++;
+}
+In encrypt_measure.c, add a new function alongside the existing encrypt_and_measure (leave that one exactly as-is):
+
+
+void energy_batch_measure(algo_t algo, const uint8_t *key,
+                           const uint8_t *nonce, size_t nonce_len,
+                           const uint8_t *payload, size_t payload_len,
+                           int N, int sample_every,
+                           monitor_ctx_t *out_ctx) {
+    static uint8_t ciphertext[16 * 100 + TAG_LEN];
+    start_monitor(out_ctx);
+    for (int i = 0; i < N; i++) {
+        if (algo == ALGO_AES_128_GCM)
+            aes128_gcm_encrypt(key, nonce, nonce_len, payload, payload_len, ciphertext);
+        else
+            ascon128_encrypt(key, nonce, payload, payload_len, ciphertext);
+        if (i % sample_every == 0) sample_monitor(out_ctx);
+    }
+    stop_monitor(out_ctx);
+
+    float avg_power_mW = out_ctx->sample_count ?
+        (float)(out_ctx->power_sum_mW / out_ctx->sample_count) : 0;
+    printf("[ENERGY %s] N=%d samples=%lu avg_power_mW=%.3f\n",
+           (algo == ALGO_AES_128_GCM) ? "AES-128-GCM" : "ASCON-128",
+           N, (unsigned long)out_ctx->sample_count, avg_power_mW);
+}
+Note this deliberately doesn't report time from this loop — the periodic I2C polling inflates elapsed time, so don't use it. You already have clean, valid per-op timing for each payload size from your main dataset.
+
+Trial matrix & how to run it without disturbing the main sweep
+Rather than editing main.c's existing 500×100 loop, wire this behind a separate small driver so your archived dataset-producing firmware stays frozen and rebuildable:
+
+Before changing anything, commit/tag the current state (git tag pre-energy-supplement or similar) so you can always rebuild the exact firmware that produced your existing dataset.
+Add a second, small RTC-backed loop (copy the pattern already in main.c) iterating over just: 2 algorithms × ~6 payload sizes × ~10–15 repeats (independent boots, for variance across trials) = ~150–180 boots.
+You can shorten DEEP_SLEEP_SECONDS for this run — the long 60s sleep in the original design exists to let things settle for clean heap watermarks; power averaging doesn't need that, a few seconds between boots is enough for I2C/WiFi to reinit cleanly.
+Runtime estimate: ~150 boots × (~2–3s reconnect + ~0.2–1s batch + ~5s settle) ≈ 15–25 minutes of device time — well inside "a few hours," with margin for re-runs.
+Turning the result into energy
+For each (algorithm, payload size):
+
+
+energy_per_op_mJ = avg_power_mW × time_per_op_us_from_existing_dataset / 1000
+Average avg_power_mW across your ~10–15 repeat batches per condition, report mean ± CI, and pair it with the mean per-op time you already have for that same algorithm/size from the original 50,000-trial dataset.
+
+Write-up note
+In your methodology section, be explicit that energy is computed by combining two separately-validated measurements (batched average power × previously-measured per-operation time) rather than derived from a single continuous energy trace — that's a legitimate and common practical compromise, but naming it precisely heads off questions from examiners better than presenting it as if it were one seamless measurement.

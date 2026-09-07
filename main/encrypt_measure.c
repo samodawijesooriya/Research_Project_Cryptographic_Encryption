@@ -36,12 +36,19 @@ size_t encrypt_and_measure(algo_t algo,
 
     start_monitor(out_ctx);   // baseline heap snapshot + INA219 reading (Fig. 5)
 
+    UBaseType_t stack_hwm_words_before = uxTaskGetStackHighWaterMark(NULL);
+
     if (algo == ALGO_AES_128_GCM) {
         ct_len = aes128_gcm_encrypt(key, nonce, nonce_len,
                                      payload, payload_len, ciphertext);
     } else {
         ct_len = ascon128_encrypt(key, nonce, payload, payload_len, ciphertext);
     }
+
+    UBaseType_t stack_hwm_words_after = uxTaskGetStackHighWaterMark(NULL);
+    out_ctx->stack_used_bytes = (stack_hwm_words_before > stack_hwm_words_after)
+        ? (uint32_t)(stack_hwm_words_before - stack_hwm_words_after) * sizeof(StackType_t)
+        : 0;
 
     stop_monitor(out_ctx);    // post-op heap + second INA219 reading, deltas derived
     output_metrics(out_ctx, (algo == ALGO_AES_128_GCM) ? "AES-128-GCM" : "ASCON-128");

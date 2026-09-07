@@ -22,7 +22,7 @@ RTC_DATA_ATTR static bool     rtc_initialized = false;
 
 static algo_t select_algorithm(void) {
     // Swap for menuconfig / UART prompt if you need to pick per test run.
-    return ALGO_AES_128_GCM;
+    return ALGO_ASCON_128;
 }
 
 static void define_key(uint8_t *key_out) {
@@ -66,8 +66,8 @@ void app_main(void) {
         // per physical power-cycle. Corresponds to COLD_BOOT_INIT() in Fig. 1.
         rtc_algo = select_algorithm();
         define_key(rtc_key);
-        rtc_i = 0;
-        rtc_j = 1;
+        rtc_i = 21;    // fresh ASCON-128 run
+        rtc_j = 75;
         rtc_initialized = true;
         wifi_connect();
 

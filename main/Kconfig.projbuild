@@ -13,7 +13,7 @@ config ESP_WIFI_PASSWORD
 
 config ESP_MQTT_BROKER_URI
     string "MQTT broker URI"
-    default "mqtt://10.95.43.98:1883"
+    default "mqtt://10.254.36.98:1883"
     help
 	URI of the MQTT broker Node-RED's mqtt-in node is subscribed against.
 	Must be your PC's LAN IP (not 127.0.0.1/localhost) since the ESP32 is

@@ -140,7 +140,7 @@ void report_trial_start(int i, int j, size_t payload_len, const char *label) {
     wait_for_publish_ack(label);
 }
 
-void report_to_nodered(const monitor_ctx_t *ctx, const char *label) {
+void report_to_nodered(const monitor_ctx_t *ctx, const char *label, int trial_id, size_t payload_len) {
     if (!s_mqtt_client || !s_mqtt_connected) {
         ESP_LOGW(TAG, "MQTT not connected, dropping report for %s", label);
         return;
@@ -154,21 +154,25 @@ void report_to_nodered(const monitor_ctx_t *ctx, const char *label) {
     if (stack_peak_b < 0) stack_peak_b = 0;
     float   power_delta  = ctx->power_after_mW - ctx->power_before_mW;
 
-    char payload[320];
+    char payload[384];
     int len = snprintf(payload, sizeof(payload),
         "{"
+        "\"id\":%d,"
         "\"algo\":\"%s\","
+        "\"size\":%u,"
         "\"time_us\":%lld,"
         "\"heap_delta_bytes\":%ld,"
         "\"heap_peak_used_bytes\":%ld,"
         "\"stack_peak_used_bytes\":%ld,"
+        "\"stack_used_bytes\":%lu,"
         "\"current_before_mA\":%.3f,"
         "\"current_after_mA\":%.3f,"
         "\"power_before_mW\":%.3f,"
         "\"power_after_mW\":%.3f,"
         "\"power_delta_mW\":%.3f"
         "}",
-        label, elapsed_us, heap_delta_b, heap_peak_b, stack_peak_b,
+        trial_id, label, (unsigned)payload_len, elapsed_us, heap_delta_b, heap_peak_b, stack_peak_b,
+        (unsigned long)ctx->stack_used_bytes,
         ctx->current_before_mA, ctx->current_after_mA,
         ctx->power_before_mW, ctx->power_after_mW,
         power_delta);

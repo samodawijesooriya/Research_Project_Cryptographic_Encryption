@@ -26,6 +26,12 @@ typedef struct {
     uint32_t heap_min_free_after;
     uint32_t stack_hwm_free_before;
     uint32_t stack_hwm_free_after;
+    // Stack actually consumed by just the ENCRYPT(...) call, measured with
+    // uxTaskGetStackHighWaterMark(NULL) taken immediately before/after that
+    // call (not the whole start_monitor..stop_monitor window above, which
+    // also covers INA219 I/O and tends to read back 0 since the task's
+    // watermark was already driven lower by earlier calls this boot).
+    uint32_t stack_used_bytes;
     float    current_before_mA;
     float    current_after_mA;
     float    power_before_mW;
