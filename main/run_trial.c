@@ -72,7 +72,7 @@ void run_trial(algo_t algo, const uint8_t *key, int i, int j) {
     heap_trace_start(HEAP_TRACE_ALL);
 #endif
 
-    encrypt_and_measure(algo, key, nonce, nonce_len, payload, payload_len, &mctx);
+    encrypt_and_measure(algo, key, nonce, nonce_len, payload, payload_len, &mctx, trial_id);
 
 #ifdef DEBUG_HEAP_TRACE
     heap_trace_stop();

@@ -37,7 +37,7 @@ void stop_monitor(monitor_ctx_t *ctx) {
     ctx->power_after_mW        = ina219_read_power_mW();
 }
 
-void output_metrics(const monitor_ctx_t *ctx, const char *label) {
+void output_metrics(const monitor_ctx_t *ctx, const char *label, int trial_id, size_t payload_len) {
     int64_t elapsed_us     = ctx->end_time_us - ctx->start_time_us;
     int32_t heap_delta_b   = (int32_t)ctx->heap_before - (int32_t)ctx->heap_after;
     // Peak (watermark) usage: how much further the lowest-ever free level
@@ -52,11 +52,12 @@ void output_metrics(const monitor_ctx_t *ctx, const char *label) {
     // This record feeds directly into the offline clean/CSV/analyze pipeline
     // (thesis Section 3.6/3.7) — no cross-device timestamp correlation needed,
     // since everything was measured on this one board.
-    printf("[%s] time_us=%lld  heap_delta_bytes=%ld  heap_peak_used_bytes=%ld  "
-           "stack_peak_used_bytes=%ld  "
+    printf("[%s] id=%d  size=%u  time_us=%lld  heap_delta_bytes=%ld  heap_peak_used_bytes=%ld  "
+           "stack_peak_used_bytes=%ld  stack_used_bytes=%lu  "
            "current_mA(before,after)=%.3f,%.3f  power_mW(before,after)=%.3f,%.3f  "
            "power_delta_mW=%.3f\n",
-           label, elapsed_us, heap_delta_b, heap_peak_b, stack_peak_b,
+           label, trial_id, (unsigned)payload_len, elapsed_us, heap_delta_b, heap_peak_b, stack_peak_b,
+           (unsigned long)ctx->stack_used_bytes,
            ctx->current_before_mA, ctx->current_after_mA,
            ctx->power_before_mW, ctx->power_after_mW,
            power_delta_mW);

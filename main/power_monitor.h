@@ -40,6 +40,6 @@ typedef struct {
 
 void start_monitor(monitor_ctx_t *ctx);
 void stop_monitor(monitor_ctx_t *ctx);
-void output_metrics(const monitor_ctx_t *ctx, const char *label);
+void output_metrics(const monitor_ctx_t *ctx, const char *label, int trial_id, size_t payload_len);
 
 #endif // POWER_MONITOR_H
