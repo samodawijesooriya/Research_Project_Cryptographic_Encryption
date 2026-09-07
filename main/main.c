@@ -66,8 +66,8 @@ void app_main(void) {
         // per physical power-cycle. Corresponds to COLD_BOOT_INIT() in Fig. 1.
         rtc_algo = select_algorithm();
         define_key(rtc_key);
-        rtc_i = 21;    // fresh ASCON-128 run
-        rtc_j = 75;
+        rtc_i = 1;    // fresh ASCON-128 run
+        rtc_j = 1;
         rtc_initialized = true;
         wifi_connect();
 

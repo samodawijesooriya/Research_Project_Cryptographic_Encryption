@@ -18,7 +18,7 @@ static heap_trace_record_t s_heap_trace_records[HEAP_TRACE_NUM_RECORDS];
 static const char *TAG = "run_trial";
 
 extern void report_to_nodered(const monitor_ctx_t *ctx, const char *label, int trial_id, size_t payload_len);
-extern void report_trial_start(int i, int j, size_t payload_len, const char *label);
+extern void report_trial_start(int trial_id, int i, int j, size_t payload_len, const char *label);
 
 // GENERATE_NONCE(algo) — Fig. 4. AES-128-GCM -> 12-byte nonce (GCM standard).
 // ASCON-128 -> 16-byte nonce. Random bytes sourced from the ESP32 hardware RNG.
@@ -57,7 +57,7 @@ void run_trial(algo_t algo, const uint8_t *key, int i, int j) {
 
     ESP_LOGI(TAG, "Running trial %d/%d - %s (%u bytes) [id=%d]",
              i, j, label, (unsigned)payload_len, trial_id);
-    report_trial_start(i, j, payload_len, label);
+    report_trial_start(trial_id, i, j, payload_len, label);
 
 #ifdef DEBUG_HEAP_TRACE
     // One-off diagnostic: enable CONFIG_HEAP_TRACING_STANDALONE in menuconfig

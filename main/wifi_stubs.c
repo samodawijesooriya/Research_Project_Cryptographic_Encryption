@@ -118,22 +118,23 @@ static void wait_for_publish_ack(const char *label) {
     }
 }
 
-void report_trial_start(int i, int j, size_t payload_len, const char *label) {
+void report_trial_start(int trial_id, int i, int j, size_t payload_len, const char *label) {
     if (!s_mqtt_client || !s_mqtt_connected) {
         ESP_LOGW(TAG, "MQTT not connected, dropping trial-start report for %s", label);
         return;
     }
 
-    char payload[160];
+    char payload[192];
     int len = snprintf(payload, sizeof(payload),
         "{"
         "\"event\":\"trial_start\","
+        "\"id\":%d,"
         "\"algo\":\"%s\","
         "\"i\":%d,"
         "\"j\":%d,"
         "\"payload_len_bytes\":%u"
         "}",
-        label, i, j, (unsigned)payload_len);
+        trial_id, label, i, j, (unsigned)payload_len);
 
     s_mqtt_publish_acked = false;
     esp_mqtt_client_publish(s_mqtt_client, CONFIG_ESP_MQTT_TOPIC_STATS, payload, len, 1, 0);
