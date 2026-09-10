@@ -56,6 +56,24 @@ idf.py menuconfig   # under "Benchmark Configuration": set Wi-Fi + MQTT broker
 idf.py build flash monitor
 ```
 
+## MQTT Connection using CMD
+### For getting the bechamarks
+To subscribe to that topic from the command line (useful for testing outside Node-RED), use mosquitto_sub:
+
+mosquitto_sub -h 10.83.32.98 -p 1883 -t "esp32/benchmark" -v
+
+Change the ip address by giveing `ipconfig` command in the cmd.
+
+### For getting the benchmark stats
+mosquitto_sub -h 10.83.32.98 -p 1883 -t "esp32/benchmark/stats" -v
+
+## Sample Benchmark Code
+
+### Sample Benchmark Stats
+{"event":"trial_start","algo":"ASCON-128","i":21,"j":76,"payload_len_bytes":1216}
+### Sample Benchmark Data
+{"id":2176,"algo":"ASCON-128","size":1216,"time_us":2800,"heap_delta_bytes":4444,"heap_peak_used_bytes":2840,"stack_peak_used_bytes":0,"stack_used_bytes":79,"current_before_mA":-19.4,"current_after_mA":-14.9,"power_before_mW":88,"power_after_mW":68,"power_delta_mW":-20}
+
 ### Configuration
 
 Set these under `Benchmark Configuration` in `menuconfig` (or in
