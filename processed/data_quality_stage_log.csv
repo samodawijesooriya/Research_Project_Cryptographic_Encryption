@@ -1,0 +1,3 @@
+algo,raw_rows,malformed_lines,gate1_candidate_iterations,gate1_complete_iterations,gate1_rows_retained,gate1_n_per_size,gate2_offset_mA,gate2_v_bus_V,gate2_n_negative_raw,gate2_n_still_negative_after_offset,gate3_rows_after_trim,gate3_rows_removed_total
+ASCON-128,65506,0,699,561,56100,561,5.699999999999999,4.674196350999131,23622,8023,45745,10355
+AES-128-GCM,61715,0,646,510,51000,510,5.699999999999999,4.674196350999131,201,101,42870,8130

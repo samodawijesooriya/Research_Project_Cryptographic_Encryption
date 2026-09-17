@@ -1,0 +1,12 @@
+[
+  {
+    "regime": "small (<256B, LPWAN-typical)",
+    "mean_ascon_minus_aes_energy_per_byte": -0.225131871057871,
+    "more_efficient": "ASCON"
+  },
+  {
+    "regime": "large (>800B, bulk-telemetry-typical)",
+    "mean_ascon_minus_aes_energy_per_byte": 0.06471562032823834,
+    "more_efficient": "AES"
+  }
+]

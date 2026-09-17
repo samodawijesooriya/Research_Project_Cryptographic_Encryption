@@ -8,7 +8,7 @@
 
 #define OUTER_LOOP_COUNT   500   // was: for (i = 0; i < 500; i++)
 #define INNER_LOOP_COUNT   100   // was: for (j = 1; j <= 100; j++)
-#define DEEP_SLEEP_SECONDS 2
+#define DEEP_SLEEP_SECONDS 1
 
 extern void wifi_connect(void);
 extern void wifi_reconnect(void);
@@ -22,7 +22,7 @@ RTC_DATA_ATTR static bool     rtc_initialized = false;
 
 static algo_t select_algorithm(void) {
     // Swap for menuconfig / UART prompt if you need to pick per test run.
-    return ALGO_ASCON_128;
+    return ALGO_AES_128_GCM;
 }
 
 static void define_key(uint8_t *key_out) {
@@ -66,8 +66,8 @@ void app_main(void) {
         // per physical power-cycle. Corresponds to COLD_BOOT_INIT() in Fig. 1.
         rtc_algo = select_algorithm();
         define_key(rtc_key);
-        rtc_i = 123;    // fresh ASCON-128 run
-        rtc_j = 16;
+        rtc_i = 416;   // fresh AES-128-GCM run
+        rtc_j = 52;
         rtc_initialized = true;
         wifi_connect();
 

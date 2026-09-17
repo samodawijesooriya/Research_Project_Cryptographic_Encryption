@@ -1,0 +1,7 @@
+{
+  "I_sleep_uA": 5.0,
+  "V_sleep_V": 3.3,
+  "T_sleep_s": 60.0,
+  "sleep_energy_uJ": 990.0,
+  "datasheet_citation": "Espressif ESP32-C3 Series Datasheet, Version 2.3, Table 5-9 'Current Consumption in Low-Power Modes' (Deep-sleep: RTC timer + RTC memory), measured at 3.3V/25degC per Section 5.6.1"
+}

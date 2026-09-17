@@ -1,0 +1,36 @@
+{
+  "active_phase_energy_per_byte": [
+    {
+      "bracket_low": 336,
+      "bracket_high": 352,
+      "interpolated_crossover_bytes": 346.83447778648446
+    },
+    {
+      "bracket_low": 528,
+      "bracket_high": 544,
+      "interpolated_crossover_bytes": 539.2402621978555
+    },
+    {
+      "bracket_low": 544,
+      "bracket_high": 560,
+      "interpolated_crossover_bytes": 546.5006096310585
+    }
+  ],
+  "total_duty_cycle_energy_per_byte": [
+    {
+      "bracket_low": 336,
+      "bracket_high": 352,
+      "interpolated_crossover_bytes": 346.83447778648446
+    },
+    {
+      "bracket_low": 528,
+      "bracket_high": 544,
+      "interpolated_crossover_bytes": 539.2402621978543
+    },
+    {
+      "bracket_low": 544,
+      "bracket_high": 560,
+      "interpolated_crossover_bytes": 546.5006096310588
+    }
+  ]
+}
