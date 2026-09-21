@@ -1,0 +1,12 @@
+# Match the ORIGINAL benchmark build (see ../sdkconfig): 160 MHz, default -Og,
+# hardware AES on, 115200 console. No Wi-Fi/MQTT/deep sleep in this project.
+CONFIG_IDF_TARGET="esp32"
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_160=y
+CONFIG_COMPILER_OPTIMIZATION_DEFAULT=y
+CONFIG_MBEDTLS_HARDWARE_AES=y
+CONFIG_ESP_CONSOLE_UART_BAUDRATE=115200
+CONFIG_FREERTOS_HZ=100
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=8192
+# The workload task spins on core 1 for ~1 s at a time; without this the idle
+# task on core 1 is starved and the task watchdog fires.
+CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU1=n

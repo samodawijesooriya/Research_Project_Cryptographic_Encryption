@@ -1,0 +1,4 @@
+variant,rows_ascon,rows_aes,energy_crossing_B,time_crossing_B,n_sign_changes_energy,time_us:one_tailed_0p01,time_us:two_sided_raw_0p01,time_us:two_sided_holm_0p01,power_mW:one_tailed_0p01,power_mW:two_sided_raw_0p01,power_mW:two_sided_holm_0p01,e:one_tailed_0p01,e:two_sided_raw_0p01,e:two_sided_holm_0p01
+no trimming,56100,51000,345.00032460526506,1245.3242863276284,8,13,82,81,63,68,56,60,68,47
+IQR k=3.0,53264,47301,347.4271953852529,1266.5199177243283,4,21,100,100,73,98,98,67,92,90
+IQR k=1.5 (thesis),45735,42868,346.83447778648446,1267.3640249784494,3,21,100,100,78,99,99,72,93,92
