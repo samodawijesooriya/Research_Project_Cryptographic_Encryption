@@ -380,7 +380,7 @@ raw execution speed.
 
 ### 4.7.2 Regression Summary
 
-Table 4.2 (§4.3.3) is repeated here in the context of Objective 1's requirement to account
+Table 4 (§4.3.3) is repeated here in the context of Objective 1's requirement to account
 for the hardware engine's initialization overhead. The linear regression of per-operation
 energy against payload size produced an intercept of 15.03 µJ for ASCON-128 and 30.14 µJ
 for AES-128-GCM — that is, extrapolating each algorithm's energy-scaling line back to a
