@@ -1,8 +1,21 @@
 # Figures to add or change, and what the appendices should contain
 
+*Updated against **Final Thesis V04.pdf** page/section numbers (the version circulating now). The previous draft of this file, and `10_Cross_Check_Report.md`, were written against V02 — treat section numbers below as current, and re-check that report's page numbers if you rely on them.*
+
 ---
 
 ## A. Figures
+
+### A.0 The most urgent fix: the image currently under "Figure 10" is wrong
+
+On p.43 (§4.5.1), the caption reads **"Figure 10-Total duty cycle energy per byte"**, but the chart actually placed there is titled *"Fine sweep around the break-even (Run 2, 15 replicates, 95% CI of the paired difference)"* — that is Campaign B's fine-sweep chart, not a Campaign A duty-cycle chart. This is not a captioning preference, it is a wrong image inserted under the wrong number.
+
+**Fix (do this first, before anything else in this file):**
+1. Remove that fine-sweep image from p.43. It belongs later, in Chapter 5 (see A.3, Figure 19 below).
+2. In its place, insert `figures/total_duty_cycle_energy_per_byte.png` (already sitting unused in your root `figures/` folder — it was generated for exactly this slot and never inserted). Keep the existing caption, "Figure 10 – Total duty cycle energy per byte."
+3. This means Figures 1–11 keep their current numbers. Nothing before Chapter 5 needs renumbering.
+
+(If you'd rather follow the earlier recommendation to drop old Figure 10 outright, because the two sleep-dominated curves are visually indistinguishable — see the note at the end of A.3 — that is a valid alternative, but it forces Figure 11 to become Figure 10 and a matching edit to the List of Figures. Replacing the image, above, is the lower-disruption fix and is what's assumed for the rest of this file.)
 
 ### A.1 Redraw (supervisor's Comment 1)
 
@@ -18,73 +31,83 @@
 | Input / output (MQTT publish, serial print) | Parallelogram |
 | Flow | Arrows only, no unlabelled branches |
 
-Specific defects to correct in the current figure:
+Specific defects to correct in the current figure (p.24):
 1. `Stop main()`, `Stop RUN_TRIAL()` and `Return …` are all used for the same thing. Use *End* for main and *Return* for functions.
 2. "EUN_TRIAL" is a typo for `RUN_TRIAL`.
 3. The inner loop bound "j ≤ X" should read "j ≤ 100".
 4. The nonce decision has no Yes/No labels and the AES-GCM branch appears to lead to `random_bytes(16)`; AES-GCM → 12 bytes, ASCON → 16 bytes.
 5. Add the missing duty-cycle steps (Sense and Transmit) or state that Sense is a placeholder and Transmit is the MQTT publish.
 6. Split into panels: (a) main loop, (b) `RUN_TRIAL`, (c) `GENERATE_NONCE`, (d) `ENCRYPT_AND_MEASURE`, (e) `SLEEP_AND_MEASURE`.
-7. Update the sleep block to match the firmware (see [CONFIRM 2]).
+7. Update the sleep block to match the firmware (see `09_Open_Items.md`, [CONFIRM 2]).
 
-**Figure 1b (new) – Validation firmware flowchart** in the same style: shuffle configurations → idle window → start worker → load window → stop worker → idle window → print record → next configuration → next replicate.
+**Figure 1b (new) – Validation firmware flowchart**, same style: shuffle configurations → idle window → start worker → load window → stop worker → idle window → print record → next configuration → next replicate.
 
-**Figure 2 – Replace** the ESP32-C3 block diagram with the ESP32 (Xtensa LX6) block diagram.
+**Figure 2 (p.26) – Replace** the ESP32-C3 block diagram with the ESP32 (Xtensa LX6) block diagram — the board used is an ESP32-WROOM-32E, not a C3.
 
-**Figure 6 caption / wiring** – label the 10 kΩ resistor or remove it.
+**Figure 6 (p.31) caption / wiring** – label the 10 kΩ resistor or remove it.
 
-### A.2 New figures for Chapter 3
+### A.2 Figures 1–11 (Chapters 3–4): no renumbering needed
 
-| # | Figure | Purpose |
-|---|---|---|
-| New | **Timing diagram of one configuration**: idle → load → idle windows on a time axis, with the INA219 conversion cycles (about 68 ms) drawn beneath and the discarded portions shaded | Shows why the method works and what is discarded |
-| New | **Sensor timing versus call length** (to scale): a 532 µs INA219 conversion beside a ~2 ms call and a ~1.7 ms instrumentation overhead | Explains Campaign A's limitation visually |
+Figures 1–9 and 11 are correctly captioned and correctly placed; leave their numbers alone. Only Figure 10 needs the A.0 fix above. The Campaign A time/energy plots (Figures 7, 8) may optionally be duplicated into Appendix C labelled "trial latency including instrumentation," but that is additive — it does not change their numbers in Chapter 4.
 
-### A.3 Figures for Chapter 4 (replace old Figures 7 to 10)
+### A.3 New figures for Chapter 5 — exact numbers and insertion points
 
-| Old | New | Content |
-|---|---|---|
-| Fig 7 | **Figure 7 – Time per operation vs payload size** (Campaign B) | 3 lines (ASCON, AES_COLD, AES_WARM), 95% CI band; inset for 16 to 448 B; mark the ~175 B time crossover |
-| Fig 8 | **Figure 8 – Energy per operation vs payload with linear fits** | Points with error bars and fitted lines for the three variants; annotate slopes and intercepts (Table 8) |
-| Fig 9 | **Figure 9 – Energy per byte vs payload, log x-axis** | ASCON vs AES_COLD vs AES_WARM; vertical line at 106 B with a shaded 96 to 107 B bootstrap band |
-| Fig 10 | **Figure 10 – Fine sweep 64 to 128 B** | ASCON − AES_COLD difference (µJ) with 95% CI per size, zero line, crossing marked; note the 16-byte-block zig-zag |
-| New | **Figure – AES setup cost** | Stacked bar: AES_COLD = setup (1.9 µJ) + encrypt, next to AES_WARM and ASCON at 16 B; or bar of setup time and energy |
-| New | **Figure – Extra power by variant** | Bar chart of ΔP (mW) with 95% CI |
-| New | **Figure – Modelled duty cycle** | Stacked bars (sleep vs encryption energy) at 16, 352, 1,600 B for each cipher, with the sleep current stated |
-| New | **Figure – Sensitivity of the Campaign A break-even to trimming** | Three bars (none, k = 3, k = 1.5) with the Campaign B break-even as a horizontal reference |
-| Fig 11 | **Figure 11 – Memory footprint** | Keep as is |
-| Old 7, 8 | Move the Campaign A time and energy plots to **Appendix C**, labelled "trial latency including instrumentation" | Keep the evidence, drop the interpretation |
+Chapter 5, as currently written, **cites nine figure numbers (12, 13, 14, 15, 16, 18, 19, 20, 22) with no images actually inserted anywhere**, and never mentions Figures 17 or 21 at all. Your eleven files in `ThesisChapters/Revised/figures/` fill exactly these eleven slots once the two silent gaps (17, 21) are given one sentence of prose each. Insert in this order, top to bottom of Chapter 5:
 
-Old **Figure 10 (total duty-cycle energy per byte)** should be dropped: the two curves are visually indistinguishable because the sleep term dominates, which the stacked-bar figure shows better.
+| Fig. # | File | Insert at | Status of the citation | Suggested caption |
+|---|---|---|---|---|
+| **12** | `fig_method_windows` | §5.3.1, right after "The extra current, multiplied by the bus voltage and the time per call, gives the energy per call." (the paragraph ending "...offset cancels in the load-minus-idle difference.") — this is where the text already says **"Figure 12 and 13"** | Already cited, just insert the image | Schematic of one configuration: idle, load and idle windows, discarded portions, and the INA219 averaged register lagging the true current. |
+| **13** | `fig_sensor_timing_scale` | §5.3.1, same paragraph, second of the pair | Already cited | Durations on a log scale: 532 µs INA219 conversion vs a ~2 ms cipher call vs ~1.3–1.6 ms of Campaign A instrumentation (est.). |
+| **14** | `fig07_time_per_operation` | §5.4.2, at the end of the paragraph "...ASCON-128 was faster below about 175 bytes... and AES-128-GCM above it **(Figure 14)**" | Already cited | Time per operation against payload size (three variants, means of 10 replicates); inset 16–448 B; ~175 B time crossover marked. |
+| **15** | `fig_aes_setup_cost` | §5.4.3, end of paragraph "...the measured setup step accounts for about two thirds of it; the remainder was not isolated **(Figure 15)**" | Already cited | Composition of the 16-byte cost: AES_COLD = setup (1.90 µJ) + encrypt, next to AES_WARM and ASCON. |
+| **16** | `fig_power_by_variant` | §5.4.4, end of paragraph "...as the setup was amortized **(Figure 16)**" | Already cited | Extra power drawn above idle, by variant, with 95% CI. |
+| **17** | `fig08_energy_fits` | §5.4.5, immediately after Table 12 | **Not cited — add one sentence**, e.g. "The three fitted lines are shown in Figure 17." | Energy per operation with linear fits (Run 1); slope and intercept per variant in the legend. |
+| **18** | `fig09_energy_per_byte` | §5.4.6, in "...a clean crossing occurred in every resample **(Figure 18** and Figure 19)" | Already cited (first of the pair) | Energy per byte against payload size (log axis); shaded band = 95% bootstrap interval of the break-even (96–107 B). |
+| **19** | `fig10_fine_sweep` | §5.4.6, same sentence, second of the pair — **this is the image currently mis-inserted as old "Figure 10" on p.43; move it here** | Already cited (second of the pair) | Fine sweep, Run 2: ASCON − AES_COLD difference with 95% CI per size, zero line, crossing marked; note the 16-byte-block zig-zag. |
+| **20** | `fig_modelled_duty_cycle` | §5.4.8, immediately after Table 14 | **Not cited — add one sentence**, e.g. "Figure 20 shows the encryption share of the modelled cycle at each payload size." | Encryption energy stacked on a modelled 60 s sleep, two assumed deep-sleep currents; labels give the encryption share of the cycle. |
+| **21** | `fig_campaignA_vs_B` | §5.5.1, in "...and from 21.9 to 47.8 mW between 1,520 and 1,536 bytes **(Figure 20)**" | **Already cited, but as "Figure 20" — change that in-text number to "Figure 21"** once Figure 20 above is inserted at §5.4.8 | Side-by-side: Campaign A's stepped power/energy vs Campaign B's flat, validated values, at the eight shared payload sizes. |
+| **22** | `fig_campaignA_trimming_sensitivity` | §5.5.5, end of paragraph "...the step of 5.5.2 is a systematic effect present in the untrimmed data as well **(Figure 22)**" | Already cited, correct number | Break-even under three trimming choices (none, k=3, k=1.5) against the Campaign B result as a horizontal reference. |
 
-### A.4 Generated figures (ready to insert)
+**The one required text edit**: in §5.5.1, change "(Figure 20)" to "(Figure 21)". Every other citation in Chapter 5 already has the right number — you only need to insert the images and add the two missing sentences (Figures 17 and 20).
 
-Files are in `ThesisChapters/Revised/figures/` as 300-dpi PNG (for Word) and vector PDF. Regenerate any time with `python scripts/06_plots_validation.py`. Colours are colour-blind safe, and line styles and markers also differ so they survive black-and-white printing.
+Also add all eleven to the **List of Figures** (p.x), which currently stops at Figure 11.
 
-| File | Use as | Suggested caption |
-|---|---|---|
-| `fig07_time_per_operation` | Figure 7 (4.3) | Time per operation against payload size for the three variants (means of 10 replicates; the 95% confidence bands are narrower than the line width). Inset: 16 to 448 B. |
-| `fig08_energy_fits` | Figure 8 (4.5.2) | Energy per operation with linear fits (Run 1). Slope and intercept for each variant are in the legend. |
-| `fig09_energy_per_byte` | Figure 9 (4.5) | Energy per byte against payload size (log axis). The shaded band is the 95% bootstrap interval of the break-even (96 to 107 B). |
-| `fig10_fine_sweep` | Figure 10 (4.5.3) | Fine sweep, Run 2: difference in energy per operation (ASCON − AES with setup on each call) with 95% confidence intervals of the paired difference. |
-| `fig_aes_setup_cost` | new (4.5.2) | Composition of the 16-byte cost. The measured setup step accounts for about two thirds of the difference between the two AES variants; the rest was not isolated. |
-| `fig_power_by_variant` | new (4.4) | Extra power drawn above idle. |
-| `fig_modelled_duty_cycle` | new (4.5.5) | Encryption energy stacked on a modelled 60 s sleep, for two assumed deep-sleep currents. Labels give the encryption share of the cycle. Transmission and wake-up are not included. |
-| `fig_campaignA_trimming_sensitivity` | new (4.7.3 or Appendix C) | Break-even from Campaign A under three trimming choices, against the validation result. |
-| `fig_method_windows` | new (3.3.1) | Schematic of one configuration: idle, load and idle windows, discarded portions, and the INA219 averaged register lagging the true current. |
-| `fig_sensor_timing_scale` | new (4.2.3) | Durations on a log scale. The 1,500 µs bar is an estimate of the instrumentation in Campaign A's timed region. |
+### A.4 File locations
 
-Still to be drawn by you (not plots): **Figure 1 flowcharts** (draw.io or Visio, following A.1), **Figure 1b**, the **ESP32 block diagram** for Figure 2, and the memory figure (Figure 11 stays as it is).
+All eleven files are in `ThesisChapters/Revised/figures/` as 300-dpi PNG (for Word) and vector PDF, generated by `python scripts/06_plots_validation.py`. The one file needed for the A.0 fix, `total_duty_cycle_energy_per_byte.png`, is in the root `figures/` folder alongside the other four original Campaign A charts (`execution_time_scaling.png` → Fig. 7, `regression_scaling_overlay.png` → Fig. 8, `energy_per_byte_comparison.png` → Fig. 9, `memory_footprint_comparison.png` → Fig. 11). That folder also has `throughput_scaling.png`, which is not currently cited anywhere in the thesis — either add one sentence and a figure number for it in §4.3.2 (Throughput), or leave it out of the final document and drop it from the repo note.
 
-Notes for the figures:
-- The "sensor timing scale" bar for Campaign A instrumentation is an estimate (about 1.3 to 1.6 ms: the difference between Campaign A latency and Campaign B call time, which also holds the 398 µs sensor read pair). Keep the "(est.)" in the label.
-- `fig_method_windows` is a schematic built from the real conversion time and window lengths, not measured data; the caption says so.
+Colours are colour-blind safe, and line styles/markers also differ so the figures survive black-and-white printing.
+
+Notes:
+- The "sensor timing scale" bar for Campaign A instrumentation is an estimate (about 1.3 to 1.6 ms — the difference between Campaign A latency and Campaign B call time). Keep the "(est.)" in the label.
+- `fig_method_windows` is a schematic built from the real conversion time and window lengths, not measured data; the caption should say so.
+
+Still to be drawn by hand (not generated plots): the **Figure 1 flowcharts** (A.1), **Figure 1b**, and the **ESP32 block diagram** for Figure 2.
 
 ---
 
-## B. Tables to renumber (Chapters 3 to 5)
+## B. Tables: the actual numbering conflict, and how to resolve it
 
-Table 1 (encryption methods) and Table 2 (metrics) stay. Then: Table 3 (Campaign A row counts), Table 4 (validation design), Table 5 (time per operation), Table 6 (extra power by variant, add if you want it as a table in place of the bar chart), Table 7 (energy per op and per byte), Table 8 (fits), Table 9 (break-even summary, optional), Table 10 (fine sweep), Table 11 (modelled duty cycle), Table 12 (memory), Table 13 (paired tests summary, optional), Table 14 (Campaign A trimming sensitivity), Table 15 (Campaign A corrected tests), Table 16 (fixed and variable costs, Chapter 5). The chapter text uses these numbers; adjust in the list of tables. Equations: 1 throughput, 2 power, 3 energy per operation (sustained-load), 4 sleep-phase energy, 5 fixed plus variable cost.
+The List of Tables (p.x) stops at "Table 8 – Resource cost before encryption ... 62", matching the pre-Chapter-5 thesis. After Chapter 5 was inserted, two things happened:
+
+1. Chapter 5 introduced its own **Table 8** ("Audit of the Campaign A measurement method," p.48–49) — colliding with the front matter's Table 8.
+2. Chapter 5 continues Table 9 through Table 18 (Cipher variants, Time per operation, Energy per operation and per byte, Linear fits, Fine sweep, Modelled cycle effect, side-by-side Campaign A/B time, side-by-side power/energy, trimming sensitivity, corrected per-size tests). The table that the front matter still calls "Table 8" is, in the body, actually captioned **Table 19** (Chapter 6, "Resource cost before encryption," p.62).
+
+**Fix:** renumber the front matter's List of Tables to match the body exactly: Tables 1–7 unchanged, then Table 8 = "Audit of the Campaign A measurement method" (p.48), Tables 9–18 as they appear in Chapter 5 (already correctly numbered in the body, just missing from the list), Table 19 = "Resource cost before encryption" (p.62, currently mislabelled "Table 8" only in the front matter, not in the body). Also fix the title mismatch at Table 7: the front matter says "ttest significance summary," the body (p.46) says "Campaign A per-size tests (IQR k=1.5)" — pick one and use it in both places.
+
+## B.1 Equations: same root cause
+
+- List of Equations (p.x) stops at Equation 4, "Energy per operation," p.63.
+- The body has an *earlier* Equation 4 at §5.3.2 ("Energy per call equation," p.50) — a genuine duplicate number.
+- §5.4.8 cites "(Equation 4)" for the sleep-phase formula, but that formula was already defined as **Equation 3** in §4.2.4. This cross-reference is simply wrong and should point to Equation 3.
+- The formula the front matter's page-63 row describes is captioned **Equation 5** in the body (§6.2.2, "Energy per operation," the fixed-cost + variable-cost split).
+
+**Fix:** renumber the front matter to Equation 1 Throughput (p.32), Equation 2 Total Power (p.33), Equation 3 Sleep-phase energy constant (p.39), Equation 4 Energy per call (p.50, §5.3.2), Equation 5 Energy per operation / fixed+variable split (p.63, §6.2.2). Correct the in-text cross-reference in §5.4.8 from "(Equation 4)" to "(Equation 3)".
+
+## B.2 Section numbers to fix while you're in there
+
+- Chapter 5 jumps **§5.6 → §5.8** ("Reliability and Validity of the Validation" straight to "Summary of Chapter 5"). Either there is a missing §5.7, or §5.8 should be renumbered to §5.7.
+- Chapter 6's final section is headed **"6.5 Summary of Chapter 5"** — it is in Chapter 6 and closes Chapter 6; it should read "6.5 Summary of Chapter 6."
 
 ---
 
@@ -106,8 +129,8 @@ Table 1 (encryption methods) and Table 2 (metrics) stay. Then: Table 3 (Campaign
 **Appendix C: Campaign A processing and sensitivity**
 - C.1 Cleaning stages and row counts (Table 3 in detail).
 - C.2 Zero-offset calibration: histogram of negative current readings, the 5.70 mA constant, the 4.674 V bus-voltage estimate, and a sensitivity check of the constant (for example 5.2 to 6.5 mA) **[not yet run; see 09_Open_Items.md]**.
-- C.3 Trimming sensitivity (Table 14) and corrected tests (Table 15).
-- C.4 The Campaign A time and energy plots (old Figures 7 and 8), labelled as instrumentation-inclusive.
+- C.3 Trimming sensitivity (Table 17) and corrected tests (Table 18).
+- C.4 The Campaign A time and energy plots (Figures 7 and 8), optionally duplicated here labelled "trial latency including instrumentation."
 - C.5 Explanation of the discrepancy between the regression-based (206 B) and measured (347 B) break-even.
 
 **Appendix D: Statistical methods**

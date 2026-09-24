@@ -336,6 +336,40 @@ def fig_sensor_scale():
     save(fig, "fig_sensor_timing_scale")
 
 
+# ============================================================ Campaign A vs Campaign B
+def fig_a_vs_b():
+    a = pd.read_csv(ROOT / "processed" / "ascon_summary_by_size.csv")
+    h = pd.read_csv(ROOT / "processed" / "aes_summary_by_size.csv")
+    tb = agg(r1, "time_per_op_us")
+    pb = agg(r1[r1["size"] >= 16], "dP_mW")
+    fig, axs = plt.subplots(1, 2, figsize=(6.6, 3.4))
+    ax = axs[0]
+    ax.plot(a["size"], a["mean_time"], "-", color=C["ASCON"], lw=1.2, label="ASCON, Campaign A")
+    ax.plot(h["size"], h["mean_time"], "--", color=C["AES_COLD"], lw=1.2, label="AES, Campaign A")
+    for v in ["ASCON", "AES_COLD"]:
+        d = tb[(tb.variant == v) & (tb["size"] > 0)]
+        ax.plot(d["size"], d["mean"], ":", color=C[v], marker=MK[v], ms=3, lw=1.0,
+                label=("ASCON" if v == "ASCON" else "AES, setup every call") + ", Campaign B")
+    ax.set_xlabel("Payload size (bytes)")
+    ax.set_ylabel("Time (µs)")
+    ax.set_title("Time: constant offset in Campaign A", fontsize=8.5)
+    ax = axs[1]
+    ax.plot(a["size"], a["mean_power"], "-", color=C["ASCON"], lw=1.2, label="ASCON, Campaign A")
+    ax.plot(h["size"], h["mean_power"], "--", color=C["AES_COLD"], lw=1.2, label="AES, Campaign A")
+    for v in ["ASCON", "AES_COLD"]:
+        d = pb[(pb.variant == v) & (pb["size"] > 0)]
+        ax.plot(d["size"], d["mean"], ":", color=C[v], marker=MK[v], ms=3, lw=1.0,
+                label=("ASCON" if v == "ASCON" else "AES, setup every call") + ", Campaign B")
+    ax.set_xlabel("Payload size (bytes)")
+    ax.set_ylabel("Extra power (mW)")
+    ax.set_ylim(0, 90)
+    ax.set_title("Power: steps and level differ", fontsize=8.5)
+    h_, l_ = axs[0].get_legend_handles_labels()
+    fig.legend(h_, l_, loc="lower center", ncol=4, fontsize=6.5, frameon=False, bbox_to_anchor=(0.5, -0.06))
+    fig.tight_layout()
+    save(fig, "fig_campaignA_vs_B")
+
+
 if __name__ == "__main__":
     fig_time()
     fig_energy_fits()
@@ -347,3 +381,4 @@ if __name__ == "__main__":
     fig_sensitivity()
     fig_windows()
     fig_sensor_scale()
+    fig_a_vs_b()
